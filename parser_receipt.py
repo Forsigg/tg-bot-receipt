@@ -44,24 +44,15 @@ def parse_receipt(html_doc):
     """
     receipt_name = html_doc.find('h1').contents[0]
 
-    ingridients_li = html_doc.find_all('li', attrs={
-                                        'itemprop': 'recipeIngredient'})
+    ingridients_li = html_doc.find_all('li', attrs={'itemprop': 'recipeIngredient'})
     ingridients = (i.contents[0] for i in ingridients_li)
 
-    receipt_text_p = html_doc.find_all('p', attrs={
-                                            'itemprop': 'recipeInstructions'})
+    receipt_text_p = html_doc.find_all('p', attrs={'itemprop': 'recipeInstructions'})
     receipt_text = (i.contents for i in receipt_text_p)
-    receipt_res = []
-    for i in receipt_text:
-        receipt_res += i
+    receipt_cleaned = [step for step in receipt_text]
 
     return {
         'name': receipt_name,
         'ingridients': (i for i in ingridients),
-        'receipt_text': (i.strip() for i in receipt_res),
+        'receipt_text': (i.strip() for i in receipt_cleaned),
     }
-
-
-
-if __name__ == '__main__':
-    pass
