@@ -22,7 +22,7 @@ async def send_welcome(message: types.Message):
      и отправляет сообщение-приветствие
     :param message: команда пользователя start или help
     """
-    await message.reply('Привет!\nЯ рецепт-бот!\nСоздан на aiogram.')
+    await message.reply('Привет!\nЯ рецепт-бот!')
     await message.answer('Чтобы получить случайный рецепт введи команду /receipt' +
                          '\nБот отправит тебе название рецепта. Если хочешь получить полный рецепт - вводи команду /да')
 
@@ -30,7 +30,7 @@ async def send_welcome(message: types.Message):
 @dp.message_handler(commands=['receipt'], state='*')
 async def random_receipt_name(message: types.Message, state: FSMContext):
     """
-    Принимает сообщение пользователя и отвечает эхо-сообщением
+    Принимает сообщение пользователя и отвечает сообщением с именем рецепта
     :param message: входящее сообщение от пользователя
            state: текущее состояние машины состояний
     """
@@ -47,9 +47,9 @@ async def random_receipt_name(message: types.Message, state: FSMContext):
 @dp.message_handler(commands=['да', 'Да', 'ДА', 'confirm'], state=ReceiptStates.confirm)
 async def get_full_receipt(message: types.Message, state: FSMContext):
     """
-    Возвращает полный рецепт, подтвержденный пользователем
+    Отправляет несколько сообщений от бота с полным рецептом блюда
     :param message: сообщение от пользователя с текстом 'да'
-    :return: несколько сообщений от бота с полным рецептом блюда
+
     """
     async with state.proxy() as data:
         html_doc = await get_html_doc(data['link'])
@@ -69,10 +69,11 @@ async def get_full_receipt(message: types.Message, state: FSMContext):
 @dp.message_handler(state=ReceiptStates.confirm)
 async def cancel_receipt(message: types.Message, state: FSMContext):
     """
+    Отправляет пользователю сообщение с указанием на ввод нужной команды.
 
-    :param message:
-    :param state:
-    :return:
+    :param message: сообщение пользователя
+    :param state: состояние машины состоянии равное confirm
+
     """
 
     await message.answer('Если хотите получить следующий рецепт, введите команду /receipt')
@@ -87,7 +88,7 @@ async def echo(message: types.Message):
     :return:
     """
 
-    await message.reply(f'"{message.text}" - сказало быдло.')
+    await message.reply('Пожалуйста, отправьте боту команду /start или /help для получения инструкций по работе с ботом.')
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
