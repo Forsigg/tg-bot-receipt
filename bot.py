@@ -5,7 +5,7 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import FSMContext
 from states_machine import ReceiptStates
 from parser_receipt import get_html_doc, find_link_and_name, parse_receipt
-from config import TOKEN_BOT
+from config import TOKEN_BOT, WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
 
 
 logging.basicConfig(level=logging.INFO)
@@ -14,6 +14,8 @@ bot = Bot(token=TOKEN_BOT)
 dp = Dispatcher(bot, storage=MemoryStorage())
 dp.middleware.setup(LoggingMiddleware())
 
+
+# HANDLERS
 
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
@@ -83,12 +85,43 @@ async def cancel_receipt(message: types.Message, state: FSMContext):
 @dp.message_handler()
 async def echo(message: types.Message):
     """
+    Обрабатывает любое иное сообщение, не подпадающее под какой-либо другой хэндлер.
+    :param message:сообщение пользователя
 
-    :param message:
-    :return:
     """
 
     await message.reply('Пожалуйста, отправьте боту команду /start или /help для получения инструкций по работе с ботом.')
 
+"""
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+"""
+async def on_startup(dp):
+    await bot.set_webhook(WEBHOOK_URL)
+    logging.warning('Bot running...')
+
+
+async def on_shutdown(dp):
+    logging.warning('Shutting down...')
+
+    await bot.delete_webhook()
+
+    await dp.storage.close()
+    await dp.storage.wait_closed()
+    logging.warning('Bye!')
+
+"""
+-------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
+"""
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_webhook(
+        dispatcher=dp,
+        webhook_path=WEBHOOK_PATH,
+        on_startup=on_startup,
+        on_shutdown=on_shutdown,
+        skip_updates=True,
+        host=WEBAPP_HOST,
+        port=WEBAPP_PORT
+    )
