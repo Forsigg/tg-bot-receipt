@@ -48,11 +48,10 @@ def parse_receipt(html_doc):
     ingridients = (i.contents[0] for i in ingridients_li)
 
     receipt_text_p = html_doc.find_all('p', attrs={'itemprop': 'recipeInstructions'})
-    receipt_text = (i.contents for i in receipt_text_p)
-    receipt_cleaned = [step for step in receipt_text]
+    receipt_text = (i.contents[0] for i in receipt_text_p)
 
     return {
         'name': receipt_name,
         'ingridients': (i for i in ingridients),
-        'receipt_text': (i.strip() for i in receipt_cleaned),
+        'receipt_text': (str(i).strip() for i in receipt_text),
     }
