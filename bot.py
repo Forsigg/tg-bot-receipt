@@ -3,12 +3,15 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher import FSMContext
+
+from random_anek import get_random_joke
 from states_machine import ReceiptStates
 from parser_receipt import get_html_doc, find_link_and_name, parse_receipt
 from config import TOKEN_BOT
 
 
 logging.basicConfig(level=logging.INFO)
+
 
 bot = Bot(token=TOKEN_BOT)
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -78,6 +81,17 @@ async def cancel_receipt(message: types.Message, state: FSMContext):
 
     await message.answer('Если хотите получить следующий рецепт, введите команду /receipt')
     await state.finish()
+
+@dp.message_handler(commands=['joke'])
+async def everyday_random_joke(message: types.Message):
+    """
+    Отправляет пользователю сообщение со случайным анекдотом категории Б :)
+
+    :param message: сообщение пользователя
+    """
+    joke = get_random_joke()
+
+    await message.answer(joke)
 
 
 @dp.message_handler()

@@ -55,3 +55,4 @@ def parse_receipt(html_doc):
         'ingridients': (i for i in ingridients),
         'receipt_text': (str(i).strip() for i in receipt_text),
     }
+
