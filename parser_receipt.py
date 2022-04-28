@@ -44,15 +44,22 @@ def parse_receipt(html_doc):
     """
     receipt_name = html_doc.find('h1').contents[0]
 
+    if receipt_name in
+
     ingridients_li = html_doc.find_all('li', attrs={'itemprop': 'recipeIngredient'})
     ingridients = (i.contents[0] for i in ingridients_li)
 
     receipt_text_p = html_doc.find_all('p', attrs={'itemprop': 'recipeInstructions'})
-    receipt_text = (i.contents[0] for i in receipt_text_p)
+    try:
+        receipt_text = (i.contents[0] for i in receipt_text_p)
+        result = {
+            'name': receipt_name,
+            'ingridients': (i for i in ingridients),
+            'receipt_text': [str(i).strip() for i in receipt_text],
+        }
+    except IndexError:
+        result = None
 
-    return {
-        'name': receipt_name,
-        'ingridients': (i for i in ingridients),
-        'receipt_text': (str(i).strip() for i in receipt_text),
-    }
+    return result
+
 

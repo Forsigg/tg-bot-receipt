@@ -58,15 +58,18 @@ async def get_full_receipt(message: types.Message, state: FSMContext):
         html_doc = await get_html_doc(data['link'])
         receipt = parse_receipt(html_doc)
 
-        await message.reply('Рецепт ' + receipt['name'])
-        await message.answer('Ингридиенты\n' + '\n'.join(receipt['ingridients']))
+        if receipt is not None:
+            await message.reply('Рецепт ' + receipt['name'])
+            await message.answer('Ингридиенты\n' + '\n'.join(receipt['ingridients']))
 
-        for index, step in enumerate(receipt['receipt_text']):
-            await message.answer(f'{str(index + 1)}) {step}')
+            for index, step in enumerate(receipt['receipt_text']):
+                await message.answer(f'{str(index + 1)}) {step}')
 
-        await message.answer(data['link'])
+            await message.answer(data['link'])
 
-        await state.finish()
+            await state.finish()
+        else:
+            await message.reply('Что-то пошло не так. Попробуйте снова.')
 
 
 @dp.message_handler(state=ReceiptStates.confirm)
