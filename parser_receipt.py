@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+from db import write_receipt_to_db, is_receipt_in_db
 
 
 async def get_html_doc(ref):
@@ -26,8 +27,13 @@ def find_link_and_name(html_doc):
 
     pattern_link = r'www.gotovim.ru/sbs/\D+.shtml'
     pattern_name = r'\w+'
-    return ' '.join(re.findall(pattern_name, str(receipt_name))[1:-1]), \
+
+    name_and_link =  ' '.join(re.findall(pattern_name, str(receipt_name))[1:-1]), \
            r'http://' + re.findall(pattern_link, str(receipt_link))[0]
+
+    if is_receipt_in_db(name_and_link[0]):
+        return 'incorrect'
+    return name_and_link
 
 
 def parse_receipt(html_doc):
@@ -44,7 +50,8 @@ def parse_receipt(html_doc):
     """
     receipt_name = html_doc.find('h1').contents[0]
 
-    if receipt_name in
+    if is_receipt_in_db(receipt_name):
+        return None
 
     ingridients_li = html_doc.find_all('li', attrs={'itemprop': 'recipeIngredient'})
     ingridients = (i.contents[0] for i in ingridients_li)
@@ -58,6 +65,7 @@ def parse_receipt(html_doc):
             'receipt_text': [str(i).strip() for i in receipt_text],
         }
     except IndexError:
+        write_receipt_to_db(receipt_name)
         result = None
 
     return result

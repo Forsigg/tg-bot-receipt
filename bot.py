@@ -39,7 +39,16 @@ async def random_receipt_name(message: types.Message, state: FSMContext):
     """
     await ReceiptStates.confirm.set()
 
-    html_doc = await get_html_doc('https://www.gotovim.ru/sbs/random.shtml')
+    incorrect_receipt = True
+
+    while incorrect_receipt:
+        html_doc = await get_html_doc('https://www.gotovim.ru/sbs/random.shtml')
+        receipt_name = find_link_and_name(html_doc)
+        if receipt_name == 'incorrect':
+            continue
+        else:
+            incorrect_receipt = False
+
     await message.answer(find_link_and_name(html_doc)[0])
 
     async with state.proxy() as data:
