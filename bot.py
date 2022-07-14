@@ -2,8 +2,9 @@ import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
-from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher import FSMContext, filters
 
+from dices import throw_dice
 from random_anek import get_random_joke
 from states_machine import ReceiptStates
 from parser_receipt import get_html_doc, find_link_and_name, parse_receipt
@@ -104,6 +105,26 @@ async def everyday_random_joke(message: types.Message):
     joke = get_random_joke()
 
     await message.answer(joke)
+
+
+@dp.message_handler(filters.RegexpCommandsFilter(regexp_commands=['(\d?)d(\d+)']))
+async def get_throw_dices(message: types.Message, regexp_command):
+    """
+    Отправляет результаты броска кубика, тип которого указывает пользователь в сообщении
+
+    :param message: сообщение пользователя в формате "2d20", "d6"
+    """
+
+    count_dices = regexp_command.group(1)
+    dice = regexp_command.group(2)
+
+    results = throw_dice(dice=dice, count_dices=count_dices)
+    results_in_str = "\n".join(results)
+
+    if count_dices > 1:
+        await message.reply(f"Результат броска ваших {count_dices} костей d{dice}:\n" + results_in_str)
+    else:
+        await message.reply(f"Результат броска вашей кости d{dice}:\n" + results_in_str)
 
 
 @dp.message_handler()
