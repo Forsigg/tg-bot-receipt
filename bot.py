@@ -118,10 +118,18 @@ async def get_throw_dices(message: types.Message, regexp_command):
     count_dices = regexp_command.group(1)
     dice = regexp_command.group(2)
 
+    if int(count_dices) > 10 or int(count_dices) < 1:
+        await message.reply("This count of dices not supported")
+        return ""
+
+    if int(dice) not in [4, 6, 8, 10, 20, 100]:
+        await message.reply("This type of dices not supported")
+        return ""
+
     results = throw_dice(dice=dice, count_dices=count_dices)
     results_in_str = "\n".join(results)
 
-    if count_dices > 1:
+    if int(count_dices) > 1:
         await message.reply(f"Результат броска ваших {count_dices} костей d{dice}:\n" + results_in_str)
     else:
         await message.reply(f"Результат броска вашей кости d{dice}:\n" + results_in_str)

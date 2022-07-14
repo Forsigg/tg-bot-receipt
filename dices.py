@@ -6,7 +6,11 @@ def throw_dice(dice="d20", count_dices=1):
     Функция возвращает результат бросков (count_dices - количество костей) dice (тип кости).
     """
     max_dices = 10
-    if count_dices > max_dices:
+
+    count_dices = int(count_dices)
+    dice = int(dice)
+
+    if count_dices >= max_dices:
         count_dices = max_dices
 
     match dice:
